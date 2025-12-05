@@ -2,11 +2,21 @@
 <html>
 <head>
     <title>PixCam</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        #canvas {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+        #video {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-<video id="video" style="width: 100vw; height: 100vh;"  autoplay muted style="display:none;"></video>
-<canvas id="canvas" style="width: 100vw; height: 100vh;"></canvas>
-
-    <script src="script.js"></script>
+<video id="video" autoplay muted playsinline></video>
+<canvas id="canvas"></canvas>
+<script src="script.js"></script>
 </body>
 </html>
