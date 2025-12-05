@@ -22,7 +22,7 @@ video.addEventListener('play', () => {
     requestAnimationFrame(step);
 });
 
-// 3. Pixelation function
+// 3. Pixelation function with 1-bit conversion
 function drawPixelatedFrame(video, ctx, width, height, factor) {
     // Draw the current video frame onto the canvas at a reduced scale
     const scaledWidth = width / factor;
@@ -37,4 +37,24 @@ function drawPixelatedFrame(video, ctx, width, height, factor) {
 
     // Draw the small, pixelated image back onto the full canvas size
     ctx.drawImage(canvas, 0, 0, scaledWidth, scaledHeight, 0, 0, width, height);
+
+    // ---- 1-bit color conversion ----
+    // Get the image data from the canvas
+    let imageData = ctx.getImageData(0, 0, width, height);
+    let data = imageData.data;
+    const threshold = 127; // Luminance threshold for black & white
+
+    for (let i = 0; i < data.length; i += 4) {
+        // Calculate luminance (perceptual brightness)
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+
+        // Set pixel to black or white based on the threshold
+        const value = luminance < threshold ? 0 : 255;
+        data[i] = data[i + 1] = data[i + 2] = value;
+        // Alpha channel remains unchanged
+    }
+    ctx.putImageData(imageData, 0, 0);
 }
