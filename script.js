@@ -49,25 +49,54 @@ function drawPixelatedFrame(video, ctx, width, height, factor) {
     ctx.webkitImageSmoothingEnabled = false;
 
     // Draw the small, pixelated image back onto the full canvas size
-    ctx.drawImage(canvas, 0, 0, scaledWidth, scaledHeight, 0, 0, width, height);
+// Define a 16-color (EGA) palette
+const egaPalette = [
+    [0, 0, 0],       // 0: Black
+    [0, 0, 170],     // 1: Blue
+    [0, 170, 0],     // 2: Green
+    [0, 170, 170],   // 3: Cyan
+    [170, 0, 0],     // 4: Red
+    [170, 0, 170],   // 5: Magenta
+    [170, 85, 0],    // 6: Brown
+    [170, 170, 170], // 7: Light gray
+    [85, 85, 85],    // 8: Dark gray
+    [85, 85, 255],   // 9: Light blue
+    [85, 255, 85],   // 10: Light green
+    [85, 255, 255],  // 11: Light cyan
+    [255, 85, 85],   // 12: Light red
+    [255, 85, 255],  // 13: Light magenta
+    [255, 255, 85],  // 14: Yellow
+    [255, 255, 255], // 15: White
+];
 
-    // ---- 1-bit color conversion ----
-    // Get the image data from the canvas
-    let imageData = ctx.getImageData(0, 0, width, height);
-    let data = imageData.data;
-    const threshold = 127; // Luminance threshold for black & white
+// Helper: Find nearest EGA palette color
+function nearestColor(r, g, b) {
+    let minDist = 1e9, idx = 0;
+    for (let i = 0; i < egaPalette.length; i++) {
+        const pr = egaPalette[i][0], pg = egaPalette[i][1], pb = egaPalette[i][2];
+        const dist = (r-pr)*(r-pr) + (g-pg)*(g-pg) + (b-pb)*(b-pb);
+        if (dist < minDist) {
+            minDist = dist;
+            idx = i;
+        }
+    }
+    return egaPalette[idx];
+}
 
-    for (let i = 0; i < data.length; i += 4) {
-        // Calculate luminance (perceptual brightness)
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+// Replace this section inside drawPixelatedFrame
+for (let i = 0; i < data.length; i += 4) {
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
 
-        // Set pixel to black or white based on the threshold
-        const value = luminance < threshold ? 0 : 255;
-        data[i] = data[i + 1] = data[i + 2] = value;
-        // Alpha channel remains unchanged
+    // Find the nearest EGA palette color for 4-bit
+    const [nr, ng, nb] = nearestColor(r, g, b);
+
+    data[i]     = nr;
+    data[i + 1] = ng;
+    data[i + 2] = nb;
+    // Alpha channel remains unchanged
+}
     }
     ctx.putImageData(imageData, 0, 0);
 }
