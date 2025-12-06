@@ -1,7 +1,7 @@
 const video = document.getElementById('video');
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-const pixelationFactor = 10; // Adjust this value for different pixel sizes
+const pixelationFactor = 3; // Adjust this value for different pixel sizes
 
 // 1. Get access to the webcam (or use a source video file)
 navigator.mediaDevices.getUserMedia({ video: true })
