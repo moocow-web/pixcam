@@ -4,14 +4,27 @@ const ctx = canvas.getContext('2d');
 const pixelationFactor = 3; // Adjust this value for different pixel sizes
 
 // 1. Get access to the webcam (or use a source video file)
-navigator.mediaDevices.getUserMedia({ video: true })
-    .then(stream => {
+navigator.mediaDevices.getUserMedia({
+    video: { facingMode: { exact: "environment" } }
+})
+.then(stream => {
+    video.srcObject = stream;
+    video.play();
+})
+.catch(err => {
+    // Fallback to default camera if environment camera isn’t found
+    return navigator.mediaDevices.getUserMedia({ video: true });
+})
+.then(stream => {
+    // This will only run if fallback is used
+    if (stream) {
         video.srcObject = stream;
         video.play();
-    })
-    .catch(err => {
-        console.error("Error accessing webcam: ", err);
-    });
+    }
+})
+.catch(err => {
+    console.error("Error accessing webcam: ", err);
+});
 
 // 2. Process the video frame by frame
 video.addEventListener('play', () => {
